@@ -9,18 +9,16 @@ use crate::window;
 pub struct ClaudeCommand;
 
 impl ClaudeCommand {
-    pub fn execute(self) -> Result<()> {
-        let home = std::env::var("HOME")?;
-        let projects_dir = format!("{home}/projects");
+  pub fn execute(self) -> Result<()> {
+    let home = std::env::var("HOME")?;
+    let projects_dir = format!("{home}/projects");
 
-        let _ = window::snap_active_right();
+    let _ = window::snap_active_right();
 
-        let mut child = Command::new("claude")
-            .current_dir(&projects_dir)
-            .spawn()?;
+    let mut child = Command::new("claude").current_dir(&projects_dir).spawn()?;
 
-        child.wait()?;
+    child.wait()?;
 
-        Ok(())
-    }
+    Ok(())
+  }
 }

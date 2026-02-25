@@ -1,7 +1,22 @@
+use std::fs;
 use std::process::Command;
 
-use anyhow::{Context, Result};
+use anyhow::Context;
+use anyhow::Result;
 use clap::Parser;
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct MrtConfig {
+  #[serde(default)]
+  checks: Vec<Check>,
+}
+
+#[derive(Deserialize)]
+struct Check {
+  name: String,
+  command: String,
+}
 
 /// Commit, push, and open a PR for the current branch
 #[derive(Parser)]
@@ -12,24 +27,46 @@ pub struct ShipCommand {
 
 impl ShipCommand {
   pub fn execute(self) -> Result<()> {
-    // Show diff for review
-    println!("=== git status ===");
-    Command::new("git")
-      .args(["status"])
-      .status()
-      .context("failed to run git status")?;
+    // Run pre-ship checks from .mrt.toml if present
+    if let Ok(contents) = fs::read_to_string(".mrt.toml") {
+      let config: MrtConfig = toml::from_str(&contents).context("failed to parse .mrt.toml")?;
 
-    println!("\n=== git diff ===");
-    Command::new("git")
-      .args(["diff"])
-      .status()
-      .context("failed to run git diff")?;
+      for check in &config.checks {
+        println!("running check: {}", check.name);
+        let output = Command::new("sh")
+          .args(["-c", &check.command])
+          .output()
+          .with_context(|| format!("failed to run check '{}'", check.name))?;
+
+        if !output.status.success() {
+          let stdout = String::from_utf8_lossy(&output.stdout);
+          let stderr = String::from_utf8_lossy(&output.stderr);
+          if !stdout.is_empty() {
+            eprintln!("{stdout}");
+          }
+          if !stderr.is_empty() {
+            eprintln!("{stderr}");
+          }
+          anyhow::bail!("check '{}' failed", check.name);
+        }
+      }
+    }
+
+    // Show diff for review
+    Command::new("git").args(["status"]).status().context("failed to run git status")?;
+
+    // wait for enter key to move on:
+    println!("Enter to continue...");
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input)?;
+
+    Command::new("git").args(["diff"]).status().context("failed to run git diff")?;
+    println!("Enter to continue...");
+    std::io::stdin().read_line(&mut input)?;
 
     // Stage all changes
-    let status = Command::new("git")
-      .args(["add", "."])
-      .status()
-      .context("failed to run git add")?;
+    let status =
+      Command::new("git").args(["add", "."]).status().context("failed to run git add")?;
 
     if !status.success() {
       anyhow::bail!("git add failed");
@@ -55,9 +92,7 @@ impl ShipCommand {
       anyhow::bail!("failed to detect current branch");
     }
 
-    let branch = String::from_utf8_lossy(&branch_output.stdout)
-      .trim()
-      .to_string();
+    let branch = String::from_utf8_lossy(&branch_output.stdout).trim().to_string();
 
     // Push
     let status = Command::new("git")
@@ -83,9 +118,7 @@ impl ShipCommand {
       anyhow::bail!("gh pr create failed: {stderr}");
     }
 
-    let pr_url = String::from_utf8_lossy(&pr_output.stdout)
-      .trim()
-      .to_string();
+    let pr_url = String::from_utf8_lossy(&pr_output.stdout).trim().to_string();
 
     // Enable auto-merge
     let status = Command::new("gh")
