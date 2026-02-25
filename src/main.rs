@@ -4,6 +4,7 @@ use clap::Subcommand;
 
 mod commands;
 mod name_generator;
+pub mod version;
 pub mod window;
 
 use commands::ClaudeCommand;
