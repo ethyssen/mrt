@@ -1,0 +1,16 @@
+use lots::prelude::*;
+
+#[derive(Default)]
+struct Strategy;
+
+impl Qualification for Strategy {
+    type History = EquitySnapshot;
+
+    fn qualify(history: &Self::History) -> bool {
+        history.symbol() == "AAPL"
+    }
+}
+
+#[pdq::strategy]
+#[lots(end = open + 30m)]
+impl Strategy {}
