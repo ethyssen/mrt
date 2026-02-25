@@ -1,91 +1,59 @@
 # mr-t
 
-mr-t is a cli tool for simplifying my common workflows.
+mr-t is a cli tool for simplifying common workflows around trading strategy development.
 
 Most of the time there are a small set of decisions to be made, surrounded by many steps.
-I'd like to start automating these steps so that my time and attention is freed up.
+This tool automates those steps so that human time and attention is freed up.
 
-Commands:
+## Project Structure
 
-- temp-strat: set up a temporary strategy for ticket repro and fix testing
+```
+src/
+├── main.rs              # CLI entry point (clap derive, subcommand dispatch)
+├── name_generator.rs    # Random adjective-noun name generation (used by fix, temp-strat)
+├── window.rs            # X11 window management (snap left/right via wmctrl/xdotool)
+└── commands/
+    ├── mod.rs           # Module exports
+    ├── claude.rs        # claude command
+    ├── deploy.rs        # deploy command (with subcommand targets)
+    ├── fix.rs           # fix command
+    ├── ship.rs          # ship command
+    ├── temp_strat.rs    # temp-strat command
+    └── update.rs        # update command
+templates/
+├── Cargo.toml.template  # Template for temp strategy crates
+└── main.rs.template     # Template LOTS strategy boilerplate
+```
 
----
+Dependencies: `anyhow`, `clap` (derive), `rand`
 
-The capabilities i'd like to start building now are:
+## Commands
 
-Lets try to make this tickview release faster (in human time not machine time):
+### `mrt claude`
+Launch Claude CLI with cwd set to `~/projects`. Snaps the active terminal window to the right half of the screen.
 
-Tickview had a bug where it was crashing on a particular date while processing imbalances.
-The source parquet was empty and replay's read_all function was panicking.
-So actually, tickview doesn't even need a release.
+### `mrt deploy <target>`
+Deploy updates to remote services. Subcommand targets:
+- `pdq-studio` — SSH into krjr84, pull latest main, build, and restart the pdq-studio systemd service.
 
-Replay needs a release though and its a processTM:
+### `mrt fix <repo>`
+Start a fix workflow for a repository under `~/projects`. Creates a git worktree on a new `fix/<random-name>` branch off origin/main (or origin/master), opens VS Code at the worktree, and snaps windows side-by-side.
 
-- switch to main/master
-- pull
-- checkout a new branch (pick a name)
-- make the edit
-- choose the new version number
-- go find-replace edit the version numbers
-- git add .
-- git commit -m "choose a msg"
-- (pre-commit checks run)
-- git push
-- (pre-push checks run)
-- click on link to create pull request
-- review the code one last time (this is always a good idea!!)
-- click auto-merge
-- wait some amount of time
-- once its in, click "New Release"
-- make a new tag
-- generate and edit release notes
-- publish release
-- wait some amount of time for it to finish
+### `mrt ship <message>`
+Commit, push, and open a PR for the current branch. Shows `git status` and `git diff` for review, stages all changes, commits with the given message, pushes to origin, creates a PR against main (falls back to master), and enables auto-merge with squash. Prints the PR URL on success.
 
-The actual human inputs/decisions and their importance:
+### `mrt temp-strat`
+Scaffold a temporary strategy crate in `~/projects/temp-strats/<random-name>`. Generates Cargo.toml and main.rs from templates, adds pdq/lots/agg-stats/feature-data dependencies, opens in VS Code, and kicks off a background `cargo build --release`.
 
-- new branch name
-- make the code change
-- choose the new version number based on previously published version and breakingness of the change.
-- choose commit msg so people can see and find the fix in the commit history
-- second review of the code within the PR
-- decide whether to release now
+### `mrt update`
+Rebuild and reinstall mrt from source via `cargo install --path .`.
 
 ---
 
-Ok how can we streamline this
+## Future: Full release workflow
 
-branch name: this needs to not conflict with existing user branches or existing github.com branches
-AND it needs to be logical for the thing we're changing.
+`mrt ship` handles commit → PR. The remaining steps for a full release workflow are:
 
-make the code change
-
-choose new version number:
-I think all we need is to decide whether this change itself is major, minor, or patch.
-Then given that info, we derive the minimum acceptable version number based on the latest release.
-Then the version number we actually use here is the max(HEAD version, calculated minimum version)
-
-commit msg can be AI generated with a human confirmation/overwrite option.
-second review of the code should also be done by human
-decide whether to release now is just a bool.
-
----
-
-The sequence could look like this:
-
-human.0: start a new workflow with some command
-auto.0: init a working branch off of HEAD
-human.1: make the code change (human or AI)
-human.2: some command to "check and move to review" (code checks run here)
-auto.1: run checks. If they fail, go back to human.1
-auto.2: open full-screen `git status` and `git diff` for second code review.
-human.3: review the code change in the presented view ^^
-human.4: some command to "approve" or go back to step 1
-human.5: decide: is change semver major, minor, patch?
-auto.3: generate a candidate commit msg
-human.6: decide: accept/overwrite generated commit msg
-human.7: decude: do we want to release now?
-auto.4: everything else...
-auto.z: confirm release succeeded.
-
----
+- Auto-detect semver bump (major/minor/patch) and update version numbers
+- Wait for PR merge, then create a GitHub release with generated notes
+- The full sequence: `mrt fix <repo>` → make changes → `mrt ship <msg>` → (future) `mrt release`

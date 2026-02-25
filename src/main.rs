@@ -7,7 +7,9 @@ mod name_generator;
 pub mod window;
 
 use commands::ClaudeCommand;
+use commands::DeployCommand;
 use commands::FixCommand;
+use commands::ShipCommand;
 use commands::TempStratCommand;
 use commands::UpdateCommand;
 
@@ -22,8 +24,12 @@ struct Cli {
 enum Commands {
   /// Launch Claude with cwd set to ~/projects
   Claude(ClaudeCommand),
+  /// Deploy updates to remote services
+  Deploy(DeployCommand),
   /// Start a fix workflow for a repository
   Fix(FixCommand),
+  /// Commit, push, and open a PR for the current branch
+  Ship(ShipCommand),
   /// Generate a new temporary strategy crate
   TempStrat(TempStratCommand),
   /// Rebuild and reinstall mrt from source
@@ -35,7 +41,9 @@ fn main() -> Result<()> {
 
   match cli.command {
     Commands::Claude(cmd) => cmd.execute(),
+    Commands::Deploy(cmd) => cmd.execute(),
     Commands::Fix(cmd) => cmd.execute(),
+    Commands::Ship(cmd) => cmd.execute(),
     Commands::TempStrat(cmd) => cmd.execute(),
     Commands::Update(cmd) => cmd.execute(),
   }
