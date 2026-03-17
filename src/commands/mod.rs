@@ -1,13 +1,19 @@
+mod cli_help;
 mod claude;
+mod date_range;
 mod deploy;
 mod fix;
+mod pdq;
 mod ship;
 mod temp_strat;
 mod update;
 
+pub use cli_help::CliHelpCommand;
 pub use claude::ClaudeCommand;
+pub use date_range::DateRangeCommand;
 pub use deploy::DeployCommand;
 pub use fix::FixCommand;
+pub use pdq::PdqCommand;
 pub use ship::ShipCommand;
 pub use temp_strat::TempStratCommand;
 pub use update::UpdateCommand;

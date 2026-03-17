@@ -10,6 +10,10 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
+date-rs = "1"
+datetime-rs = "1"
+csv = "1"
 rand = "0.10"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
+clap-markdown = "0.1"
