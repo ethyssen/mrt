@@ -31,7 +31,7 @@ pub struct UpdateCommand;
 impl UpdateCommand {
   pub fn execute(self) -> Result<()> {
     let home = std::env::var("HOME")?;
-    let mrt_dir = format!("{home}/projects/mrt");
+    let mrt_dir = crate::utils::repo_dir()?;
 
     // 0. Install self
     let status = Command::new("cargo")

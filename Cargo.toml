@@ -17,3 +17,11 @@ rand = "0.10"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 clap-markdown = "0.1"
+bell-delta = { version = "3", registry = "ss151" }
+kite = { version = "3.8.0", registry = "ss151" }
+reqwest = { version = "0.12", features = ["blocking", "json"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v5"] }
+zip = "2"
+bytes = "1"
+tempfile = "3"

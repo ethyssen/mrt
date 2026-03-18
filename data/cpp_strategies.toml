@@ -1,0 +1,116 @@
+[[strategy]]
+name = "j001-mozart"
+repo = "j001-mozart"
+start_time = ""
+end_time = "open + 30m"
+devel_variants = [
+  { name = "both_release", description = "Long and Short, all windows, with score-adjusted decisions and size" },
+  { name = "both_scrape", description = "Long and Short, all windows, no scoring, taking all trades" },
+]
+
+[[strategy]]
+name = "j121-verdi"
+repo = "j121-verdi"
+start_time = ""
+end_time = "open + 1h"
+devel_variants = [
+  { name = "both_scored6", description = "Long and Short, with score-adjusted decisions and size" },
+  { name = "ethan_scraper", description = "Long and Short, no scoring, taking all trades" },
+]
+
+[[strategy]]
+name = "j141-sibelius"
+repo = "j141-sibelius"
+start_time = ""
+end_time = "open + 30m"
+devel_variants = [
+  { name = "both_alt_release", description = "Long and Short" },
+]
+
+[[strategy]]
+name = "j142-wagner"
+repo = "j142-wagner"
+start_time = ""
+end_time = "open + 30m"
+devel_variants = [
+  { name = "both_nostop", description = "Long and Short, with score adjusted decisions and size, simple exit" },
+  { name = "both_scrape_ethan", description = "Long and Short, no scoring, taking all trades, simple exit" },
+]
+
+[[strategy]]
+name = "j143-mahler"
+repo = "j143-mahler"
+start_time = ""
+end_time = "open + 15m"
+devel_variants = [
+  { name = "both_nostop", description = "Long and Short, with score adjusted decisions and size, simple exit" },
+  { name = "both_scrape", description = "Long and Short, no scoring, taking all trades, simple exit" },
+]
+
+[[strategy]]
+name = "j161-haydn"
+repo = "j161-haydn"
+start_time = ""
+end_time = ""
+devel_variants = [
+  { name = "both_release_ethan", description = "Long and Short, with score adjusted decisions and size" },
+  { name = "both_scrape", description = "Long and Short, no scoring, taking all trades" },
+]
+
+[[strategy]]
+name = "j201-dvorak"
+repo = "m521-cgt"
+start_time = ""
+end_time = ""
+devel_variants = [
+  { name = "both_flc", description = "Long and Short, release" },
+]
+
+[[strategy]]
+name = "j202-lizst"
+repo = "m521-cgt"
+start_time = ""
+end_time = ""
+devel_variants = [
+  { name = "both_alt_flc", description = "Long and Short, release" },
+]
+
+[[strategy]]
+name = "j243-bartok"
+repo = "j243-bartok"
+start_time = ""
+end_time = ""
+devel_variants = [
+  { name = "both_release", description = "Long and Short, release" },
+]
+
+[[strategy]]
+name = "j251-rossini"
+repo = "j251-rossini"
+start_time = ""
+end_time = ""
+devel_variants = [
+  { name = "both_release", description = "Long and Short, with score adjusted decisions and size" },
+  { name = "both_scrape", description = "Long and Short, no scoring, taking all trades" },
+]
+
+# J252 is just a variant of j251, sharing the same repo.
+[[strategy]]
+name = "j252-monteverdi"
+repo = "j251-rossini"
+start_time = ""
+end_time = ""
+devel_variants = [
+  { name = "both_alt_flc", description = "Long and Short, with score adjusted decisions and size" },
+  { name = "both_alt_scrape_ethan", description = "Long and Short, no scoring, taking all trades" },
+]
+
+[[strategy]]
+name = "j271-bruckner"
+repo = "j271-bruckner"
+start_time = "close - 20m"
+end_time = "close + 20m"
+devel_variants = [
+  { name = "both scrape", description = "Long and Short, no scoring, taking all trades" },
+  { name = "both release", description = "Long and Short, with score adjusted decisions and size" },
+]
