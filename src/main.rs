@@ -9,6 +9,7 @@ pub mod window;
 
 use commands::CliHelpCommand;
 use commands::ClaudeCommand;
+use commands::ComplaintsCommand;
 use commands::DateRangeCommand;
 use commands::DeployCommand;
 use commands::FixCommand;
@@ -30,6 +31,8 @@ enum Commands {
   CliHelp(CliHelpCommand),
   /// Launch Claude with cwd set to ~/projects
   Claude(ClaudeCommand),
+  /// Manage complaints for later review and tooling improvements
+  Complaints(ComplaintsCommand),
   /// Detect the earliest and latest dates in a CSV file
   DateRange(DateRangeCommand),
   /// Deploy updates to remote services
@@ -52,6 +55,7 @@ fn main() -> Result<()> {
   match cli.command {
     Commands::CliHelp(cmd) => cmd.execute(),
     Commands::Claude(cmd) => cmd.execute(),
+    Commands::Complaints(cmd) => cmd.execute(),
     Commands::DateRange(cmd) => cmd.execute(),
     Commands::Deploy(cmd) => cmd.execute(),
     Commands::Fix(cmd) => cmd.execute(),

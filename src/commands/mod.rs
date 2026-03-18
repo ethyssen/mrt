@@ -1,5 +1,6 @@
 mod cli_help;
 mod claude;
+mod complain;
 mod date_range;
 mod deploy;
 mod fix;
@@ -10,6 +11,7 @@ mod update;
 
 pub use cli_help::CliHelpCommand;
 pub use claude::ClaudeCommand;
+pub use complain::ComplaintsCommand;
 pub use date_range::DateRangeCommand;
 pub use deploy::DeployCommand;
 pub use fix::FixCommand;
