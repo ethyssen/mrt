@@ -9,8 +9,8 @@ pub mod utils;
 pub mod window;
 
 use commands::BacktestsCommand;
-use commands::CliHelpCommand;
 use commands::ClaudeCommand;
+use commands::CliHelpCommand;
 use commands::ComplaintsCommand;
 use commands::DeployCommand;
 use commands::FixCommand;
@@ -20,7 +20,7 @@ use commands::TempStratCommand;
 use commands::UpdateCommand;
 
 #[derive(Parser)]
-#[command(name = "mr-t", about = "Trading strategy development utilities")]
+#[command(name = "mr-t", about = "Leverage")]
 struct Cli {
   #[command(subcommand)]
   command: Commands,

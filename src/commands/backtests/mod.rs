@@ -1,11 +1,13 @@
 mod daily_trades;
 mod date_range;
+mod inventory;
 
 use anyhow::Result;
 use clap::Parser;
 
 use daily_trades::DailyTradesCommand;
 use date_range::DateRangeCommand;
+use inventory::InventoryCommand;
 
 /// Read and analyze backtest results
 #[derive(Parser)]
@@ -20,6 +22,8 @@ enum BacktestsSubcommand {
   DailyTrades(DailyTradesCommand),
   /// Detect the earliest and latest dates in a CSV file
   DateRange(DateRangeCommand),
+  /// Manage a backtest file inventory
+  Inventory(InventoryCommand),
 }
 
 impl BacktestsCommand {
@@ -27,6 +31,7 @@ impl BacktestsCommand {
     match self.cmd {
       BacktestsSubcommand::DailyTrades(cmd) => cmd.execute(),
       BacktestsSubcommand::DateRange(cmd) => cmd.execute(),
+      BacktestsSubcommand::Inventory(cmd) => cmd.execute(),
     }
   }
 }
