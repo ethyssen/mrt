@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::Cursor;
+use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Context;
@@ -57,14 +58,15 @@ pub fn run(args: LaunchArgs) -> Result<()> {
     );
   }
   let short_sha = &commit[..7];
-  let display_name = format!("{}-{short_sha}", strat.name);
+  // Registration name is per-repo so strategies sharing a repo reuse the same SO.
+  let registration_name = format!("{}-{short_sha}", strat.repo);
   eprintln!("  commit: {short_sha}");
-  eprintln!("  display name: {display_name}");
+  eprintln!("  registration name: {registration_name}");
 
-  // Step 2: Check if this display name is already registered in KITE.
+  // Step 2: Check if this repo+commit is already registered in KITE.
   let (user, token) = crate::commands::strategies::kite_credentials()?;
   let client = kite::KiteClient::new(&user, &token)?;
-  let existing = client.get_strategy(&display_name).send()?;
+  let existing = client.get_strategy(&registration_name).send()?;
 
   let strategy_id = if let Some(s) = existing {
     eprintln!("  already registered in KITE (uuid: {}), skipping build", s.id);
@@ -79,13 +81,13 @@ pub fn run(args: LaunchArgs) -> Result<()> {
       Some(id) => {
         eprintln!("  using existing run ID: {id}");
         id
-      }
+      },
       None => {
         eprintln!("  triggering build for {gh_repo} (ref=devel)...");
         let id = gh.dispatch_build(&gh_repo, "devel")?;
         gh.wait_for_build(&gh_repo, id)?;
         id
-      }
+      },
     };
     let zip_bytes = gh.download_artifact(&gh_repo, run_id)?;
 
@@ -99,13 +101,13 @@ pub fn run(args: LaunchArgs) -> Result<()> {
 
     // Get UUID from the .so filename.
     let uuid = uuid_from_so_filename(&so_filename)?;
-    eprintln!("  registering as '{}' (uuid: {})...", display_name, uuid);
+    eprintln!("  registering as '{}' (uuid: {})...", registration_name, uuid);
 
     // Register with KITE.
     client
       .register_strategy(uuid)
       .file_contents(&so_path)
-      .display_name(&display_name)
+      .display_name(&registration_name)
       .ksim_version("3.14.3-6".into())
       .timeout(std::time::Duration::from_secs(300))
       .send()?;
@@ -127,8 +129,11 @@ pub fn run(args: LaunchArgs) -> Result<()> {
   };
 
   // Step 5: Launch backtest.
+  // Full submission name: logicalname-hash/variant/adjective-noun
+  // kite description = "{strategy_name}/{backtest_name}"
+  let logical_name = format!("{}-{short_sha}", strat.name);
   let backtest_name = format!("{}/{}", args.variant, crate::name_generator::generate_name());
-  eprintln!("launching backtest '{backtest_name}'...");
+  eprintln!("launching backtest '{logical_name}/{backtest_name}'...");
   let start_date = date::Date::parse(&args.start_date, "%Y-%m-%d")
     .with_context(|| format!("invalid start date: {}", args.start_date))?;
   let end_date = date::Date::parse(&args.end_date, "%Y-%m-%d")
@@ -136,7 +141,7 @@ pub fn run(args: LaunchArgs) -> Result<()> {
 
   let mut builder = client
     .launch_backtest(strategy_id)
-    .strategy_name(&display_name)
+    .strategy_name(&logical_name)
     .backtest_name(&backtest_name)
     .start_date(start_date)
     .end_date(end_date)
@@ -181,7 +186,8 @@ fn github_token() -> Result<String> {
 ///
 /// Filenames look like: `libNative_01234567-0123-0123-0123-0123456789ab.so`
 /// or: `libNative_01234567-0123-0123-0123-0123456789ab.0.1.so`
-fn uuid_from_so_filename(filename: &str) -> Result<Uuid> {
+fn uuid_from_so_filename(filename: impl AsRef<Path>) -> Result<Uuid> {
+  let filename = filename.as_ref().file_name().unwrap().to_str().unwrap();
   let trimmed =
     filename.trim_start_matches("libNative_").trim_end_matches(".0.1").trim_end_matches(".so");
   Uuid::try_from(trimmed)

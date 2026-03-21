@@ -1,3 +1,4 @@
+use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -69,10 +70,10 @@ fn repo_dir(name: &str) -> PathBuf {
 }
 
 /// Fetch from origin and return the remote ref for main/master.
-fn fetch_and_resolve_base(repo_dir: &PathBuf) -> Result<String> {
+fn fetch_and_resolve_base(repo_dir: impl AsRef<Path>) -> Result<String> {
   let status = Command::new("git")
     .args(["fetch", "origin"])
-    .current_dir(repo_dir)
+    .current_dir(&repo_dir)
     .status()
     .context("failed to run git fetch")?;
 
@@ -84,7 +85,7 @@ fn fetch_and_resolve_base(repo_dir: &PathBuf) -> Result<String> {
   for candidate in ["origin/main", "origin/master"] {
     let output = Command::new("git")
       .args(["rev-parse", "--verify", candidate])
-      .current_dir(repo_dir)
+      .current_dir(&repo_dir)
       .output()
       .context("failed to run git rev-parse")?;
 
@@ -96,7 +97,7 @@ fn fetch_and_resolve_base(repo_dir: &PathBuf) -> Result<String> {
   anyhow::bail!("could not find origin/main or origin/master");
 }
 
-fn branch_exists(repo_dir: &PathBuf, branch: &str) -> Result<bool> {
+fn branch_exists(repo_dir: impl AsRef<Path>, branch: &str) -> Result<bool> {
   let output = Command::new("git")
     .args(["branch", "--list", branch])
     .current_dir(repo_dir)

@@ -1,3 +1,4 @@
+use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Context;
@@ -15,6 +16,6 @@ pub fn repo_dir() -> Result<PathBuf> {
 }
 
 /// Return a path under the mrt data/ directory.
-pub fn data_path(filename: &str) -> Result<PathBuf> {
+pub fn data_path(filename: impl AsRef<Path>) -> Result<PathBuf> {
   Ok(repo_dir()?.join("data").join(filename))
 }

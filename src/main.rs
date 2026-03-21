@@ -14,6 +14,7 @@ use commands::CliHelpCommand;
 use commands::ComplaintsCommand;
 use commands::DeployCommand;
 use commands::FixCommand;
+use commands::LintCommand;
 use commands::ShipCommand;
 use commands::StrategiesCommand;
 use commands::TempStratCommand;
@@ -40,6 +41,8 @@ enum Commands {
   Deploy(DeployCommand),
   /// Start a fix workflow for a repository
   Fix(FixCommand),
+  /// Sequenced code quality checks
+  Lint(LintCommand),
   /// Commit, push, and open a PR for the current branch
   Ship(ShipCommand),
   /// Info about trading strategies
@@ -60,6 +63,7 @@ fn main() -> Result<()> {
     Commands::Complaints(cmd) => cmd.execute(),
     Commands::Deploy(cmd) => cmd.execute(),
     Commands::Fix(cmd) => cmd.execute(),
+    Commands::Lint(cmd) => cmd.execute(),
     Commands::Ship(cmd) => cmd.execute(),
     Commands::Strategies(cmd) => cmd.execute(),
     Commands::TempStrat(cmd) => cmd.execute(),
