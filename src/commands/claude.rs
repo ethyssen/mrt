@@ -13,12 +13,10 @@ impl ClaudeCommand {
     let home = std::env::var("HOME")?;
     let projects_dir = format!("{home}/projects");
 
-    let _ = window::snap_active_right();
+    window::snap_active_right()?;
 
     let mut child = Command::new("claude").current_dir(&projects_dir).spawn()?;
-
     child.wait()?;
-
     Ok(())
   }
 }

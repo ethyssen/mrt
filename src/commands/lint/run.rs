@@ -8,7 +8,8 @@ use anyhow::Result;
 use super::Finding;
 use super::all_mechanisms;
 
-pub fn run(path: &str, mechanism_filter: Option<&str>) -> Result<()> {
+pub fn run(path: impl AsRef<Path>, mechanism_filter: Option<&str>) -> Result<()> {
+  let path = path.as_ref();
   let mechanisms = all_mechanisms();
   let mechanisms: Vec<_> = match mechanism_filter {
     Some(name) => {
@@ -23,7 +24,7 @@ pub fn run(path: &str, mechanism_filter: Option<&str>) -> Result<()> {
 
   let files = collect_rust_files(path)?;
   if files.is_empty() {
-    println!("no .rs files found under {path}");
+    println!("no .rs files found under {}", path.display());
     return Ok(());
   }
 
@@ -54,9 +55,9 @@ fn print_finding(mechanism_name: &str, finding: &Finding) {
   println!("  {}\n", finding.description);
 }
 
-fn collect_rust_files(root: &str) -> Result<Vec<PathBuf>> {
+fn collect_rust_files(root: &Path) -> Result<Vec<PathBuf>> {
   let mut files = vec![];
-  collect_recursive(Path::new(root), &mut files)?;
+  collect_recursive(root, &mut files)?;
   files.sort();
   Ok(files)
 }

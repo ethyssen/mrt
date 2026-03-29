@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 
@@ -19,7 +20,7 @@ impl Mechanism for SingleArgFunction {
 
   fn check(&self, path: &Path, contents: &str) -> Result<Vec<Finding>> {
     // Load the prompt
-    let prompt = std::fs::read_to_string(
+    let prompt = fs::read_to_string(
       Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("src/commands/lint/mechanisms/single_arg_function/prompt.txt"),
     )?;
@@ -51,29 +52,28 @@ fn parse_findings(response: &str, path: &Path) -> Result<Vec<Finding>> {
   if let (Some(start), Some(end)) = (json_start, json_end) {
     let json_str = &response[start..=end];
     if let Ok(findings_json) = serde_json::from_str::<Vec<serde_json::Value>>(json_str) {
-      let mut findings = vec![];
-      for item in findings_json {
-        if let (Some(line), Some(param_name), Some(type_name)) = (
-          item.get("line").and_then(|v| v.as_u64()),
-          item.get("param_name").and_then(|v| v.as_str()),
-          item.get("type_name").and_then(|v| v.as_str()),
-        ) {
+      let findings = findings_json
+        .iter()
+        .filter_map(|item| {
+          let line = item.get("line").and_then(|v| v.as_u64())?;
+          let param_name = item.get("param_name").and_then(|v| v.as_str())?;
+          let type_name = item.get("type_name").and_then(|v| v.as_str())?;
           let fixed_code = item
             .get("fixed_code")
             .and_then(|v| v.as_str())
             .map(|s| format!("\n\nSuggested fix:\n```rust\n{}\n```", s))
             .unwrap_or_default();
 
-          findings.push(Finding {
+          Some(Finding {
             file: path.display().to_string(),
             line: Some(line as usize),
             description: format!(
               "function accepts only `{}` of type `{}` — should be a method on `{}`{}",
               param_name, type_name, type_name, fixed_code
             ),
-          });
-        }
-      }
+          })
+        })
+        .collect();
       return Ok(findings);
     }
   }
