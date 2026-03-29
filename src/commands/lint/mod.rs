@@ -24,6 +24,7 @@ fn all_mechanisms() -> Vec<Box<dyn Mechanism>> {
   vec![
     Box::new(mechanisms::AsRefPath),
     Box::new(mechanisms::SplitImpl),
+    Box::new(mechanisms::SingleArgFunction),
   ]
 }
 

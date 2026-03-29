@@ -1,0 +1,2 @@
+If a function accepts a single argument and that single argument is a custom type, 
+it should just be converted into a method on that type.
