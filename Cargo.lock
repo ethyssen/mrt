@@ -1311,7 +1311,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mr-t"
+name = "mrt"
 version = "0.1.0"
 dependencies = [
  "anyhow",

@@ -5,7 +5,11 @@ start_time = ""
 end_time = "open + 30m"
 devel_variants = [
   { name = "both_release", description = "Long and Short, all windows, with score-adjusted decisions and size" },
-  { name = "both_scrape", description = "Long and Short, all windows, no scoring, taking all trades" },
+  { name = "both_scrape4", description = "Long and Short, all windows, scrape level 4" },
+  { name = "both_scrape3", description = "Long and Short, all windows, scrape level 3" },
+  { name = "both_scrape2", description = "Long and Short, all windows, scrape level 2" },
+  { name = "both_scrape1", description = "Long and Short, all windows, scrape level 1" },
+  { name = "both_scrape0", description = "Long and Short, all windows, scrape level 0" },
 ]
 
 [[strategy]]

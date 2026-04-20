@@ -9,6 +9,7 @@ pub mod utils;
 pub mod window;
 
 use commands::BacktestsCommand;
+use commands::CheatsheetCommand;
 use commands::ClaudeCommand;
 use commands::CliHelpCommand;
 use commands::ComplaintsCommand;
@@ -21,7 +22,10 @@ use commands::TempStratCommand;
 use commands::UpdateCommand;
 
 #[derive(Parser)]
-#[command(name = "mr-t", about = "Leverage")]
+#[command(
+  name = "mrt",
+  about = "Personal leverage for Ethan and AI as he builds out ecosystem software"
+)]
 struct Cli {
   #[command(subcommand)]
   command: Commands,
@@ -41,6 +45,8 @@ enum Commands {
   Deploy(DeployCommand),
   /// Start a fix workflow for a repository
   Fix(FixCommand),
+  /// Reference information about the trading infrastructure
+  Cheatsheet(CheatsheetCommand),
   /// Sequenced code quality checks
   Lint(LintCommand),
   /// Commit, push, and open a PR for the current branch
@@ -63,6 +69,7 @@ fn main() -> Result<()> {
     Commands::Complaints(cmd) => cmd.execute(),
     Commands::Deploy(cmd) => cmd.execute(),
     Commands::Fix(cmd) => cmd.execute(),
+    Commands::Cheatsheet(cmd) => cmd.execute(),
     Commands::Lint(cmd) => cmd.execute(),
     Commands::Ship(cmd) => cmd.execute(),
     Commands::Strategies(cmd) => cmd.execute(),
