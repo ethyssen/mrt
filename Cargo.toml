@@ -25,3 +25,6 @@ uuid = { version = "1", features = ["v4", "v5"] }
 zip = "2"
 bytes = "1"
 tempfile = "3"
+syn = { version = "2", features = ["full", "parsing", "visit"] }
+proc-macro2 = { version = "1", features = ["span-locations"] }
+walkdir = "2"
