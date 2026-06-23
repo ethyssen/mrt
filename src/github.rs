@@ -85,7 +85,7 @@ impl GitHub {
           eprintln!("  request failed ({}), retrying in 10s...", e);
           thread::sleep(Duration::from_secs(10));
           continue;
-        }
+        },
       };
 
       if let Some(conclusion) = &run.conclusion {

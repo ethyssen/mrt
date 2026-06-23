@@ -34,6 +34,29 @@ mrt complaints add <description>
 
 This creates a log that Ethan reviews to fix things permanently. Complaints are cheap — silence \
                                    means nothing gets fixed.
+
+## Narrative commenting (all Rust crates)
+
+Every Rust crate in this ecosystem follows Luke's \"narrative commenting\" convention. Match it in \
+                                   any Rust you write or edit:
+
+- Use `//` line comments for narration (never `/* */`); `///` for public API docs, `//!` for \
+                                   module-level headers.
+- Full sentences, sentence case, proper punctuation. Split multi-line blocks into paragraphs \
+                                   separated by a bare `//` line.
+- First-person plural voice (\"we want to…\", \"we handle this by…\"). Explain the *why / intent / \
+                                   tradeoff / invariant*, not the mechanics the code already shows.
+- Place at decision points: module headers, function preambles, and ahead of non-obvious branches.
+- No ASCII banners, dashed separators, or WARNING/FIXME markers. Use `TODO(#issue):` for deferrals.
+- Moderate density: ~1–3 comment lines per 5–10 lines of code. Narrate the non-obvious; leave the \
+                                   obvious alone.
+
+Example of the voice:
+
+```
+// We want to place an order if *either* the deadline has passed *or* this is not a partial
+// fill (since on a completed fill there is no reason to delay the corresponding exit).
+```
 ";
 
 /// Rebuild and reinstall mrt from source

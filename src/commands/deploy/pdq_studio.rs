@@ -4,14 +4,19 @@ use anyhow::Context;
 use anyhow::Result;
 
 const HOST: &str = "krjr84";
-const REMOTE_CMD: &str = "sudo -iu lewis bash -lc 'cd ~/pdq-studio && git pull && bun run build' && sudo \
-            systemctl restart pdq-studio";
+
+/// Steps run as the `lewis` user (needs his bun/node env), inside ~/pdq-studio.
+const LEWIS_STEPS: &[&str] = &["cd ~/pdq-studio", "git pull", "bun run build"];
+
+/// Steps run as root after the build succeeds.
+const ROOT_STEPS: &[&str] = &["sudo systemctl restart pdq-studio"];
 
 pub fn run() -> Result<()> {
   println!("Deploying pdq-studio on {HOST}...");
 
+  let remote_cmd = build_remote_cmd();
   let status = Command::new("ssh")
-    .args([HOST, REMOTE_CMD])
+    .args([HOST, &remote_cmd])
     .status()
     .with_context(|| format!("failed to ssh to {HOST}"))?;
 
@@ -21,4 +26,10 @@ pub fn run() -> Result<()> {
 
   println!("pdq-studio deployed successfully.");
   Ok(())
+}
+
+fn build_remote_cmd() -> String {
+  let lewis = format!("sudo -iu lewis bash -lc '{}'", LEWIS_STEPS.join(" && "));
+  let root = ROOT_STEPS.join(" && ");
+  format!("{lewis} && {root}")
 }

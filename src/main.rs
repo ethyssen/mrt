@@ -5,6 +5,7 @@ use clap::Subcommand;
 mod commands;
 pub mod github;
 mod name_generator;
+pub mod usage;
 pub mod utils;
 pub mod window;
 
@@ -20,6 +21,8 @@ use commands::ShipCommand;
 use commands::StrategiesCommand;
 use commands::TempStratCommand;
 use commands::UpdateCommand;
+use commands::UsageCommand;
+use commands::ViewsCommand;
 
 #[derive(Parser)]
 #[command(
@@ -57,12 +60,17 @@ enum Commands {
   TempStrat(TempStratCommand),
   /// Rebuild and reinstall mrt from source
   Update(UpdateCommand),
+  /// Inspect mrt command usage stats
+  Usage(UsageCommand),
+  /// Fast, lightweight projections of a codebase or CLI that surface bugs
+  Views(ViewsCommand),
 }
 
-fn main() -> Result<()> {
+fn main() {
+  let start = std::time::Instant::now();
   let cli = Cli::parse();
 
-  match cli.command {
+  let result: Result<()> = match cli.command {
     Commands::CliHelp(cmd) => cmd.execute(),
     Commands::Backtests(cmd) => cmd.execute(),
     Commands::Claude(cmd) => cmd.execute(),
@@ -75,5 +83,16 @@ fn main() -> Result<()> {
     Commands::Strategies(cmd) => cmd.execute(),
     Commands::TempStrat(cmd) => cmd.execute(),
     Commands::Update(cmd) => cmd.execute(),
-  }
+    Commands::Usage(cmd) => cmd.execute(),
+    Commands::Views(cmd) => cmd.execute(),
+  };
+
+  let exit_code = if let Err(ref e) = result {
+    eprintln!("Error: {e:?}");
+    1
+  } else {
+    0
+  };
+  usage::record_invocation(exit_code, start.elapsed().as_millis());
+  std::process::exit(exit_code);
 }
