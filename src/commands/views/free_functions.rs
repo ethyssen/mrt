@@ -17,7 +17,7 @@ use walkdir::WalkDir;
 /// same thing under almost the same name, but live in different files, end up
 /// adjacent so the redundancy is obvious.
 #[derive(Parser)]
-pub struct FreeFunctionsArgs {
+pub struct FreeFunctionsCmd {
   /// Crate (or directory) to scan. If it looks like a crate root we scan its
   /// `src/`; otherwise we walk every `.rs` file beneath the path.
   #[arg(default_value = ".")]
@@ -32,7 +32,7 @@ struct FreeFunction {
   line: usize,
 }
 
-impl FreeFunctionsArgs {
+impl FreeFunctionsCmd {
   pub fn execute(self) -> Result<()> {
     // A crate root carries a `Cargo.toml`, in which case the code we care about
     // lives under `src/`. Otherwise we treat the path as a plain tree to walk.
@@ -68,9 +68,7 @@ impl FreeFunctionsArgs {
 
 /// Parse a single file and append its free functions to `out`.
 fn collect_from_file(
-  path: impl AsRef<Path>,
-  root: impl AsRef<Path>,
-  out: &mut Vec<FreeFunction>,
+  path: impl AsRef<Path>, root: impl AsRef<Path>, out: &mut Vec<FreeFunction>,
 ) -> Result<()> {
   let path = path.as_ref();
   let root = root.as_ref();
@@ -102,11 +100,10 @@ fn collect_from_items(items: &[syn::Item], origin: &str, out: &mut Vec<FreeFunct
       },
       // An inline `mod foo { ... }` still holds free functions; a `mod foo;`
       // (no content) points at another file we'll reach via the walk.
-      syn::Item::Mod(item_mod) => {
+      syn::Item::Mod(item_mod) =>
         if let Some((_, nested)) = &item_mod.content {
           collect_from_items(nested, origin, out);
-        }
-      },
+        },
       _ => {},
     }
   }

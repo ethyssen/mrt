@@ -13,7 +13,7 @@ use clap::Parser;
 /// adjacent rows, so a description that drifted for one flag — or two different
 /// flags worded identically — jumps out.
 #[derive(Parser)]
-pub struct CliArgOccurrencesArgs {
+pub struct CliArgOccurrencesCmd {
   /// How to invoke the target CLI, e.g. `mrt` or `cargo run -p foo --`.
   /// Everything here is run verbatim with a subcommand path and `--help`
   /// appended.
@@ -33,7 +33,7 @@ struct Occurrence {
   description: String,
 }
 
-impl CliArgOccurrencesArgs {
+impl CliArgOccurrencesCmd {
   pub fn execute(self) -> Result<()> {
     let mut occurrences = vec![];
     let mut visited = HashSet::new();
@@ -61,10 +61,7 @@ impl CliArgOccurrencesArgs {
   /// Recursively invoke `<invocation> <path...> --help`, scrape its args, and
   /// descend into every subcommand it advertises.
   fn walk(
-    &self,
-    path: &[String],
-    occurrences: &mut Vec<Occurrence>,
-    visited: &mut HashSet<Vec<String>>,
+    &self, path: &[String], occurrences: &mut Vec<Occurrence>, visited: &mut HashSet<Vec<String>>,
   ) -> Result<()> {
     if !visited.insert(path.to_vec()) {
       return Ok(());
